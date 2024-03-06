@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/features/group/model/user_model.dart';
+import 'package:my_app/shared/global.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class UIHelper {
   static customTextField(
@@ -132,6 +135,52 @@ class UIHelper {
   //           style: TextStyle(fontSize: 22),
   //         )),
   //   );
+
+  static customUserListWidgetView(
+      List<UserModel> _user, BuildContext context, int index) {
+    return InkWell(
+      focusColor: Colors.grey,
+      onLongPress: () {
+        context.push(chatPath, extra: _user[index]);
+      },
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundImage:
+                  NetworkImage(_user[index].image ?? anonymousUserIconLink),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: CircleAvatar(
+                radius: 5,
+                backgroundColor:
+                    _user[index].isOnline ? Colors.green : Colors.grey,
+              ),
+            )
+          ],
+        ),
+        title: Text(_user[index].name,
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
+        subtitle: !_user[index].isOnline
+            ? Text(
+                'Last Active: ${timeago.format(_user[index].lastActive)}',
+                style: const TextStyle(color: Colors.blueGrey, fontSize: 14),
+                overflow: TextOverflow.ellipsis,
+              )
+            : Text(
+                'Online',
+                style: TextStyle(color: Colors.green, fontSize: 14),
+              ),
+      ),
+    );
+  }
 
   static customChat(
       bool isUser, DateTime dateTime, String messages, BuildContext context) {

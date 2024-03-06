@@ -31,11 +31,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       SignUpButtonClickedEvent event, Emitter<SignupState> emit) {
     print("Signing Up");
     emit(SignUpUserRegistrationStartedState());
-    _signUpRepo
-        .registerUser(event.email, event.name, event.password)
-        .onError((error, stackTrace) {
-      emit(SignUpUserRegistrationFailedState());
-    });
+    _signUpRepo.registerUser(event.email, event.name, event.password);
     emit(SignUpUserRegistrationCompleteState());
   }
 }

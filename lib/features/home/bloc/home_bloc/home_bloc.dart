@@ -17,8 +17,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeScrollingReachedEndEvent>(homeScrollingReachedEndEvent);
     on<HomeFloatingActionButtonClickedEvent>(
         homeFloatingActionButtonClickedEvent);
-    on<HomeSignOutEvent> (
-      (event, emit) async{
+    on<HomeSignOutEvent>(
+      (event, emit) async {
         await FirebaseAuth.instance.signOut();
         emit(HomeSignOutState());
       },
@@ -35,7 +35,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> homeScrollingReachedEndEvent(
       HomeScrollingReachedEndEvent event, Emitter<HomeState> emit) async {
     emit(HomeLoadMoreDataState());
-    
+
     var client = http.Client();
     List<Post> posts = [];
   }
@@ -43,7 +43,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> homeFloatingActionButtonClickedEvent(
       HomeFloatingActionButtonClickedEvent event,
       Emitter<HomeState> emit) async {
-    int i = 101;
+    // int i = 101;
     // print("Posted");
     // var client = http.Client();
     // try {

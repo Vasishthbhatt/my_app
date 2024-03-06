@@ -5,9 +5,6 @@ sealed class UserEvent {}
 
 class UserInitialEvent extends UserEvent {}
 
-class UserUpdateEvent extends UserEvent {
-  final UserModel user;
-  UserUpdateEvent({required this.user});
-}
+class UserUpdateEvent extends UserEvent {}
 
 class UserDisposeEvent extends UserEvent {}

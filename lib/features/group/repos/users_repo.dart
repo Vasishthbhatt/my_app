@@ -3,18 +3,18 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_app/features/group/model/user_model.dart';
+import 'package:my_app/shared/global.dart';
 
 class UserRepos {
-  final CollectionReference _userModelCollection =
-      FirebaseFirestore.instance.collection('userModel');
-
   final String _user = FirebaseAuth.instance.currentUser!.uid.toString();
 
   bool isUpdating = false;
 
   Stream<List<UserModel>> getUser() {
-    return _userModelCollection.snapshots().map((event) {
-      return event.docs.map((e) {
+    return userModelCollection
+        .snapshots(includeMetadataChanges: false)
+        .map((event) {
+      return event.docs.where((element) => element.id != _user).map((e) {
         Map<String, dynamic> data = e.data() as Map<String, dynamic>;
         return UserModel(
             uid: data['uid'],
@@ -27,8 +27,12 @@ class UserRepos {
     });
   }
 
+  // Stream<QuerySnapshot> get getUser {
+  //   return userModelCollection.snapshots();
+  // }
+
   Future<void> updateUser(bool isOnline) async {
-    await _userModelCollection.doc().update({
+    await userModelCollection.doc(_user).update({
       'isOnline': isOnline,
       'lastActive': Timestamp.fromDate(DateTime.now())
     });
@@ -37,15 +41,4 @@ class UserRepos {
   // Future<UserModel> registerUser(String email,String name,String){
 
   // }
-
-  Future<void> createUser(UserModel userModel) async {
-    await _userModelCollection.doc().set({
-      'uid': userModel.uid,
-      'email': userModel.email,
-      'image': userModel.image,
-      'isOnline': userModel.isOnline,
-      'lastActive': userModel.lastActive,
-      'name': userModel.name
-    });
-  }
 }

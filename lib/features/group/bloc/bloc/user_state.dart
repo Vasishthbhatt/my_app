@@ -12,6 +12,6 @@ class UserLoadingState extends UserState {}
 class UserLoadedState extends UserState {}
 
 class UserNewDataUpdateState extends UserActionState {
-  final UserModel userModel;
+  final List<UserModel> userModel;
   UserNewDataUpdateState({required this.userModel});
 }

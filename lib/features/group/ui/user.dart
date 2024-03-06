@@ -65,15 +65,8 @@ class _UserState extends State<User> {
                       print(state.runtimeType.toString());
                       if (state is UserNewDataUpdateState) {
                         final users = state as UserNewDataUpdateState;
-                        int index = _users.indexWhere(
-                            (element) => element.uid == state.userModel.uid);
-
-                        if (index != -1) {
-                          _users[index] =
-                              state.userModel; // Update existing element
-                        } else {
-                          _users.add(state.userModel); // Add new element
-                        }
+                        _users.clear();
+                        _users.addAll(users.userModel);
                       }
 
                       print("UsersListLength:" + _users.length.toString());
@@ -86,46 +79,8 @@ class _UserState extends State<User> {
                           height: 10,
                         ),
                         itemBuilder: (context, index) {
-                          return InkWell(
-                            focusColor: Colors.grey,
-                            onLongPress: () {
-                              context.push(chatPath, extra: _users[index]);
-                            },
-                            child: ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage: NetworkImage(
-                                        _users[index].image ??
-                                            anonymousUserIconLink),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: CircleAvatar(
-                                      radius: 5,
-                                      backgroundColor: _users[index].isOnline
-                                          ? Colors.green
-                                          : Colors.grey,
-                                    ),
-                                  )
-                                ],
-                              ),
-                              title: Text(_users[index].name,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(
-                                'Last Active: ${timeago.format(_users[index].lastActive)}',
-                                style: const TextStyle(
-                                    color: Colors.blueGrey, fontSize: 14),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          );
+                          return UIHelper.customUserListWidgetView(
+                              _users, context, index);
                         },
                       );
                     },
