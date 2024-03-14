@@ -4,37 +4,39 @@
 
 import 'dart:convert';
 
-List<Post> welcomeFromJson(String str) =>
-    List<Post>.from(json.decode(str).map((x) => Post.fromJson(x)));
+List<Groups> welcomeFromJson(String str) =>
+    List<Groups>.from(json.decode(str).map((x) => Groups.fromJson(x)));
 
-String welcomeToJson(List<Post> data) =>
+String welcomeToJson(List<Groups> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Post {
-  int userId;
-  int id;
+class Groups {
+  String groupId;
   String title;
   String body;
+  // int amount;
+  List<String> users;
+  List<String> admins;
 
+  Groups(
+      {required this.groupId,
+      required this.title,
+      required this.body,
+      required this.admins,
+      required this.users});
 
-  Post({
-    required this.userId,
-    required this.id,
-    required this.title,
-    required this.body,
-  });
-
-  factory Post.fromJson(Map<String, dynamic> json) => Post(
-        userId: json["userId"],
-        id: json["id"],
-        title: json["title"],
-        body: json["body"],
-      );
+  factory Groups.fromJson(Map<String, dynamic> json) => Groups(
+      groupId: json["groupId"],
+      title: json["title"],
+      body: json["body"],
+      admins: [],
+      users: []);
 
   Map<String, dynamic> toJson() => {
-        "userId": userId,
-        "id": id,
+        "groupId": groupId,
         "title": title,
         "body": body,
+        "admin": admins,
+        "users": users,
       };
 }

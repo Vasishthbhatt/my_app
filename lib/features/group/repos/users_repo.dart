@@ -22,11 +22,15 @@ class UserRepos {
             name: data['name'],
             image: data['image'],
             lastActive: data['lastActive'].toDate(),
-            isOnline: data['isOnline']);
+            isOnline: data['isOnline'],
+            groupList: []);
       }).toList();
     });
   }
 
+  // Future<void> addUserToGroup() async{
+  //   await FirebaseFirestore.instance.collection(groupModelCollectionReferenceUid)
+  // }
   // Stream<QuerySnapshot> get getUser {
   //   return userModelCollection.snapshots();
   // }

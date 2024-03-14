@@ -17,7 +17,7 @@ class User extends StatefulWidget {
   State<User> createState() => _UserState();
 }
 
-class _UserState extends State<User> {
+class _UserState extends State<User> with WidgetsBindingObserver {
   final UserBloc _userBloc = UserBloc();
   List<UserModel> _users = [];
   // final UserRepos _userRepos = UserRepos();
@@ -26,13 +26,38 @@ class _UserState extends State<User> {
   void initState() {
     _users.clear();
     _userBloc.add(UserInitialEvent());
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
     _userBloc.add(UserDisposeEvent());
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    _userBloc.add(UserDisposeEvent());
+    super.deactivate();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print(state.toString());
+    switch (state) {
+      case AppLifecycleState.inactive:
+        _userBloc.add(UserDisposeEvent());
+        break;
+      case AppLifecycleState.resumed:
+        _userBloc.add(UserInitialEvent());
+        break;
+      case AppLifecycleState.paused:
+        _userBloc.add(UserDisposeEvent());
+      default:
+        break;
+    }
   }
 
   @override
@@ -54,7 +79,16 @@ class _UserState extends State<User> {
           case UserLoadedState:
             {
               return Scaffold(
-                appBar: AppBar(title: Text("Users")),
+                appBar: AppBar(
+                  title: Text("Users"),
+                  backgroundColor: Colors.lightBlueAccent,
+                ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    _userBloc.add(UserAddCurrentUserTOCurrentGroupEvent());
+                  },
+                  child: Icon(Icons.add),
+                ),
                 body: Container(
                   decoration: UIHelper.customContainerDecoration(),
                   child: BlocBuilder<UserBloc, UserState>(

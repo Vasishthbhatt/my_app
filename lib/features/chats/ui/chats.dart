@@ -21,18 +21,15 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   ChatBloc _chatBloc = ChatBloc();
-  List<Message> messages = [];
+  List<Message> _messages = [];
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final user = FirebaseAuth.instance.currentUser;
+  final String _user = FirebaseAuth.instance.currentUser!.uid.toString();
   @override
   void initState() {
-    _chatBloc.add(ChatInitialEvent());
+    _chatBloc.add(ChatInitialEvent(receiverId: widget.userModel.uid));
     super.initState();
   }
-
-  final String senderId = "me";
-  final String receiverId = "you";
 
   AppBar _buildAppBar() => AppBar(
         elevation: 0,
@@ -80,15 +77,14 @@ class _ChatState extends State<Chat> {
         }
         return false;
       },
+
       buildWhen: (previous, current) {
         if (current is ChatInitialState || current is ChatLoadedState) {
           return true;
         }
         return false;
       },
-      listener: (context, state) {
-        // TODO: implement listener
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         debugPrint(state.runtimeType.toString());
 
@@ -107,11 +103,14 @@ class _ChatState extends State<Chat> {
                       Expanded(
                         child: BlocConsumer<ChatBloc, ChatState>(
                           bloc: _chatBloc,
+                          buildWhen: (previous, current) =>
+                              current is ChatGenerateNewMessageState ||
+                              current is ChatLoadingState,
                           listener: (context, state) {
                             if (state is ChatGenerateNewMessageState) {
-                              messages.add(Message(
-                                  senderId: senderId,
-                                  receiverId: receiverId,
+                              _messages.add(Message(
+                                  senderId: _user,
+                                  receiverId: widget.userModel.uid,
                                   content:
                                       _textEditingController.text.toString(),
                                   sentTime: DateTime.now(),
@@ -121,19 +120,21 @@ class _ChatState extends State<Chat> {
                                   _scrollController.position.extentTotal,
                                   duration: Duration(seconds: 1),
                                   curve: Curves.easeInOutCubicEmphasized);
+                            } else if (state is ChatLoadingState) {
+                              _messages.clear();
+                              _messages.addAll(state.messages);
                             }
                           },
                           builder: (context, state) {
                             return ListView.builder(
                                 controller: _scrollController,
-                                shrinkWrap: true,
-                                itemCount: messages.length,
+                                itemCount: _messages.length,
                                 itemBuilder: (context, index) {
                                   return UIHelper.customChat(
-                                      (user ==
-                                          FirebaseAuth.instance.currentUser),
-                                      messages[index].sentTime,
-                                      messages[index].content,
+                                      FirebaseAuth.instance.currentUser!.uid ==
+                                          _messages[index].receiverId,
+                                      _messages[index].sentTime,
+                                      _messages[index].content,
                                       context);
                                 });
                             // return Center(
@@ -175,12 +176,14 @@ class _ChatState extends State<Chat> {
                               width: 10,
                             ),
                             InkWell(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25)),
                               onTap: () {
                                 if (_textEditingController.text.isNotEmpty) {
                                   _chatBloc.add(ChatGenerateNewMessageEvent(
                                       message: Message(
-                                          senderId: senderId,
-                                          receiverId: receiverId,
+                                          senderId: _user,
+                                          receiverId: widget.userModel.uid,
                                           content: _textEditingController.text
                                               .toString(),
                                           sentTime: DateTime.now(),

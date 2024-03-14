@@ -15,4 +15,6 @@ const String anonymousUserIconLink =
     'https://cdn-icons-png.flaticon.com/128/634/634795.png';
 
 final CollectionReference userModelCollection =
-      FirebaseFirestore.instance.collection('userModel');
+    FirebaseFirestore.instance.collection('userModel');
+
+const String groupModelCollectionReferenceUid = 'Groups';

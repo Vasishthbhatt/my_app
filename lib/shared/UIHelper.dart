@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/features/group/model/user_model.dart';
+import 'package:my_app/features/home/models/home_data_ui_model.dart';
 import 'package:my_app/shared/global.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -140,6 +142,7 @@ class UIHelper {
       List<UserModel> _user, BuildContext context, int index) {
     return InkWell(
       focusColor: Colors.grey,
+      borderRadius: BorderRadius.all(Radius.circular(20)),
       onLongPress: () {
         context.push(chatPath, extra: _user[index]);
       },
@@ -238,6 +241,29 @@ class UIHelper {
         ],
       ),
     );
+  }
+
+  static customPostBox(Groups groups, BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(20)),
+        padding: EdgeInsets.all(12),
+        margin: EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Text(
+              groups.title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(groups.body)
+          ],
+        ));
   }
 }
 

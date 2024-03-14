@@ -92,7 +92,7 @@ class _LoginState extends State<Login> {
                       UIHelper.customTextField(
                           _password,
                           "Enter Your Password",
-                          Icons.password_sharp,
+                          Icons.lock,
                           true,
                           TextInputType.visiblePassword,
                           (p0) => null),

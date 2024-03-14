@@ -8,3 +8,5 @@ class UserInitialEvent extends UserEvent {}
 class UserUpdateEvent extends UserEvent {}
 
 class UserDisposeEvent extends UserEvent {}
+
+class UserAddCurrentUserTOCurrentGroupEvent extends UserEvent {}

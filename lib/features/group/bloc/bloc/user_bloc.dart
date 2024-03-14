@@ -17,6 +17,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   UserBloc() : super(UserInitial()) {
     on<UserInitialEvent>(userInitialEvent);
     on<UserUpdateEvent>(userUpdateEvent);
+    on<UserAddCurrentUserTOCurrentGroupEvent>(
+      (event, emit) {},
+    );
     on<UserDisposeEvent>(userDisposeEvent);
   }
 
@@ -24,19 +27,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       UserInitialEvent event, Emitter<UserState> emit) {
     _userRepos.updateUser(true);
     emit(UserLoadingState());
-    // _userRepos.getUser().listen((event) async {
-    //   for (final user in event) {
-    //     // add(UserUpdateEvent(user: user));
-    //     emit.onEach(
-    //       stream,
-    //       onData: (data) {
-    //         UserNewDataUpdateState(userModel: user);
-    //       },
-    //     );
-    //   }
-    // });
     add(UserUpdateEvent());
-
     emit(UserLoadedState());
     print("Gathering USers");
   }

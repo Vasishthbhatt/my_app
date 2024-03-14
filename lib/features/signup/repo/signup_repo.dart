@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_app/features/group/model/user_model.dart';
 import 'package:my_app/shared/global.dart';
@@ -15,7 +14,8 @@ class SignUpRepo {
           email: email,
           name: name,
           lastActive: DateTime.now(),
-          isOnline: true));
+          isOnline: true,
+          groupList: List.empty(growable: true)));
     } catch (e) {
       log(e.toString());
     }
@@ -28,7 +28,8 @@ class SignUpRepo {
       'image': userModel.image,
       'isOnline': userModel.isOnline,
       'lastActive': userModel.lastActive,
-      'name': userModel.name
+      'name': userModel.name,
+      'groupList': userModel.groupList
     });
   }
 }

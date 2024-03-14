@@ -46,6 +46,10 @@ class _SignUpState extends State<SignUp> {
               debugPrint("Going To Login Page");
               context.go(loginPath);
             }
+          case SignUpUserRegistrationCompleteState:
+            {
+              context.go(homePath);
+            }
         }
       },
       builder: (context, state) {
@@ -92,14 +96,14 @@ class _SignUpState extends State<SignUp> {
                         UIHelper.customTextField(
                             _pass,
                             "Enter Your Password",
-                            Icons.password_rounded,
+                            Icons.lock,
                             true,
                             TextInputType.visiblePassword,
                             (p0) => null),
                         UIHelper.customTextField(
                             null,
                             "Confirm Your Password",
-                            Icons.password_rounded,
+                            Icons.lock,
                             true,
                             TextInputType.visiblePassword, (p0) {
                           if (p0 != _pass.text.toString()) {

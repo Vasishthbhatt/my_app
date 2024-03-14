@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_app/features/home/bloc/api_bloc/bloc/api_bloc.dart';
 import 'package:my_app/features/home/bloc/home_bloc/home_bloc.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:my_app/features/home/models/home_data_ui_model.dart';
+import 'package:my_app/shared/UIHelper.dart';
 import 'package:my_app/shared/global.dart';
 import 'package:my_app/shared/loading.dart';
+import 'package:path/path.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -18,9 +19,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   ScrollController _scrollController = ScrollController();
   final HomeBloc _homeBloc = HomeBloc();
-  final ApiBloc _apiBloc = ApiBloc();
-  List<Post> myPosts = [];
+  List<Groups> _myPosts = [];
   bool isLoading = false;
+
+  // final _textFieldController = TextEditingController();
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _HomeState extends State<Home> {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent) {
         debugPrint("More Data Loaded");
-        _apiBloc.add(ApiLoadMoreDataEvent());
       }
     }
     super.initState();
@@ -40,7 +41,8 @@ class _HomeState extends State<Home> {
     return BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
         listenWhen: (previous, current) => current is HomeActionState,
-        buildWhen: (previous, current) => current is! HomeActionState,
+        buildWhen: (previous, current) =>
+            current is! HomeActionState && current is! HomePostState,
         listener: (context, state) {
           if (state is HomeNavigatingToChatState) {
             context.push(userPath);
@@ -54,106 +56,111 @@ class _HomeState extends State<Home> {
           switch (state.runtimeType) {
             case HomeLoadingState:
               {
-                return LoadingWidget();
+                return Scaffold(
+                  body: Container(
+                    height: double.maxFinite,
+                    width: double.maxFinite,
+                    decoration: UIHelper.customContainerDecoration(),
+                    child: LoadingAnimationWidget.threeRotatingDots(
+                        color: Colors.blue, size: 120),
+                  ),
+                );
               }
             case HomeLoadingCompleteState:
               {
-                final succesState = state as HomeLoadingCompleteState;
-                myPosts.addAll(succesState.posts);
                 return Scaffold(
-                    floatingActionButton: FloatingActionButton(
-                      child: Icon(Icons.chat),
-                      backgroundColor: Colors.lightBlue[100],
-                      onPressed: () {
-                        _homeBloc.add(HomeFloatingActionButtonClickedEvent());
-                      },
-                    ),
                     appBar: AppBar(
-                      title: const Text("Vb App"),
-                      backgroundColor: Colors.blueAccent,
+                      title: Text("Groups"),
+                      backgroundColor: Colors.lightBlueAccent,
                       actions: [
                         IconButton(
-                            onPressed: () {
-                              _homeBloc.add(HomeSignOutEvent());
-                            },
-                            icon: Icon(Icons.logout_outlined))
+                            onPressed: () => _showTextInputDialog(context),
+                            icon: Icon(Icons.logout))
                       ],
                     ),
-                    body: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(
-                          decelerationRate: ScrollDecelerationRate.fast),
-                      child: Animate(
-                        effects: [],
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ...myPosts.asMap().entries.map((e) {
-                              int index = e.key;
-                              var item = e.value;
-
-                              return BlocConsumer<ApiBloc, ApiState>(
-                                bloc: _apiBloc,
-                                listener: (context, state) {
-                                  if (state is ApiLoadMoreDataState) {
-                                    final loadedData =
-                                        state as ApiLoadMoreDataState;
-                                    myPosts.addAll(loadedData.posts);
-                                  }
-                                },
-                                builder: (context, state) {
-                                  if (index < myPosts.length - 1 ||
-                                      state is ApiMoreDataLoadedState) {
-                                    isLoading = false;
-                                    return Container(
-                                      alignment: Alignment.bottomLeft,
-                                      width: MediaQuery.of(context).size.width,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 10),
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 10),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(width: 3),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(20))),
-                                      child: Animate(
-                                        effects: [FadeEffect()],
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              item.title,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  decoration:
-                                                      TextDecoration.underline),
-                                            ),
-                                            Text(item.body)
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    isLoading = false;
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                },
-                              );
-                            })
-                          ],
-                        ),
+                    floatingActionButton: FloatingActionButton(
+                        child: Icon(Icons.add),
+                        onPressed: () async {
+                          _homeBloc.add(HomeFloatingActionButtonClickedEvent(
+                              groups: Groups(
+                                  groupId: "groupId",
+                                  title: "title",
+                                  body: "body",
+                                  admins: [],
+                                  users: [])));
+                          // var result = await _showTextInputDialog(context);
+                          // print(result.toString());
+                        }),
+                    body: Container(
+                      height: MediaQuery.of(context).size.height,
+                      decoration: UIHelper.customContainerDecoration(),
+                      child: BlocBuilder<HomeBloc, HomeState>(
+                        bloc: _homeBloc,
+                        buildWhen: (previous, current) =>
+                            current is HomePostState,
+                        builder: (context, state) {
+                          print(state.runtimeType.toString());
+                          if (state is HomeUpdatePostState) {
+                            _myPosts.clear();
+                            _myPosts.addAll(state.groups);
+                          }
+                          return ListView.separated(
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(
+                              height: 10,
+                            ),
+                            shrinkWrap: true,
+                            itemCount: _myPosts.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                  onTap: () =>
+                                      _homeBloc.add(HomePostTappedEvent()),
+                                  child: UIHelper.customPostBox(
+                                      _myPosts[index], context));
+                            },
+                          );
+                        },
                       ),
-                    )).animate(effects: [const FadeEffect()]);
+                    ));
               }
             default:
-              return const Scaffold(
-                body: Center(
-                  child: Text("Error"),
-                ),
-              );
+              {
+                return const Scaffold(
+                  body: Center(
+                    child: Text("Error"),
+                  ),
+                );
+              }
           }
+        });
+  }
+
+  Future<String?> _showTextInputDialog(BuildContext context) async {
+    // print("Logoout Button Clicked");
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shadowColor: Colors.amber,
+            backgroundColor: Color.fromARGB(255, 180, 249, 255),
+            title: const Text(
+              'Do you want to SignOut?',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text("Cancel"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              ElevatedButton(
+                child: const Text('OK'),
+                onPressed: () => _homeBloc.add(HomeSignOutEvent()),
+              ),
+            ],
+          );
         });
   }
 }

@@ -40,9 +40,7 @@ class MyAppRouter {
       path: chatPath,
       builder: (context, state) {
         UserModel _userModel = state.extra as UserModel;
-        return Chat(
-          userModel:_userModel 
-        );
+        return Chat(userModel: _userModel);
       },
     ),
     GoRoute(
