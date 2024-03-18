@@ -21,7 +21,11 @@ class HomeMoreDataLoadedState extends HomeActionState {
   HomeMoreDataLoadedState({required this.posts});
 }
 
-class HomeNavigatingToChatState extends HomeActionState {}
+class HomeNavigatingToChatState extends HomeActionState {
+  final String groupId;
+
+  HomeNavigatingToChatState({required this.groupId});
+}
 
 class HomeSignOutState extends HomeActionState {}
 

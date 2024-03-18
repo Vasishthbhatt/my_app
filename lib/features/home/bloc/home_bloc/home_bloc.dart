@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart' as http;
-import 'package:my_app/features/home/models/home_data_ui_model.dart';
+import 'package:my_app/features/home/models/home_model.dart';
 import 'package:my_app/features/home/repos/home_repo.dart';
 
 part 'home_event.dart';
@@ -14,7 +14,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GroupsRepos _groupsRepos = GroupsRepos();
 
   HomeBloc() : super(HomeInitial()) {
-    on<HomePostTappedEvent>((event, emit) => emit(HomeNavigatingToChatState()));
+    on<HomePostTappedEvent>((event, emit) => emit(HomeNavigatingToChatState(groupId: event.groupId)));
     on<HomeInitEvent>(homeInitEvent);
     on<HomeScrollingReachedEndEvent>(homeScrollingReachedEndEvent);
     on<HomeFloatingActionButtonClickedEvent>(

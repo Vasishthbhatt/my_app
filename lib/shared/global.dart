@@ -10,6 +10,8 @@ const String homePath = '/myhome';
 const String loadingWidgetPath = '/loading';
 const String chatPath = '/chat';
 const String userPath = '/user';
+const String dashBoardPath = '/dashboard';
+const String notificationPath = '/notificationPath';
 
 const String anonymousUserIconLink =
     'https://cdn-icons-png.flaticon.com/128/634/634795.png';

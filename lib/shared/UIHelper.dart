@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/features/group/model/user_model.dart';
-import 'package:my_app/features/home/models/home_data_ui_model.dart';
+import 'package:my_app/features/home/models/home_model.dart';
 import 'package:my_app/shared/global.dart';
 import 'package:timeago/timeago.dart' as timeago;
 

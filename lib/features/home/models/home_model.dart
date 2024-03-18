@@ -14,7 +14,7 @@ class Groups {
   String groupId;
   String title;
   String body;
-  // int amount;
+  // int maxEmployee;
   List<String> users;
   List<String> admins;
 

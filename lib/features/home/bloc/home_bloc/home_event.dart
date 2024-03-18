@@ -17,4 +17,9 @@ class HomeSignOutEvent extends HomeEvent {}
 
 class HomePostLoadingEvent extends HomeEvent {}
 
-class HomePostTappedEvent extends HomeEvent {}
+class HomePostTappedEvent extends HomeEvent {
+  final String groupId;
+
+  HomePostTappedEvent({required this.groupId});
+
+}

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_app/features/home/bloc/home_bloc/home_bloc.dart';
-import 'package:my_app/features/home/models/home_data_ui_model.dart';
+import 'package:my_app/features/home/models/home_model.dart';
+import 'package:my_app/features/home/ui/home_sidebar.dart';
 import 'package:my_app/shared/UIHelper.dart';
 import 'package:my_app/shared/global.dart';
-import 'package:my_app/shared/loading.dart';
-import 'package:path/path.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,7 +15,8 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   ScrollController _scrollController = ScrollController();
   final HomeBloc _homeBloc = HomeBloc();
   List<Groups> _myPosts = [];
@@ -34,6 +34,8 @@ class _HomeState extends State<Home> {
       }
     }
     super.initState();
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
+    _tabController.addListener(() {});
   }
 
   @override
@@ -45,7 +47,10 @@ class _HomeState extends State<Home> {
             current is! HomeActionState && current is! HomePostState,
         listener: (context, state) {
           if (state is HomeNavigatingToChatState) {
-            context.push(userPath);
+            context.push(
+              dashBoardPath,
+              extra: state.groupId
+            );
             debugPrint("Going To Chats");
           } else if (state is HomeSignOutState) {
             context.pushReplacement(loginPath);
@@ -69,14 +74,45 @@ class _HomeState extends State<Home> {
             case HomeLoadingCompleteState:
               {
                 return Scaffold(
+                    drawer: HomeSideBar(),
                     appBar: AppBar(
                       title: Text("Groups"),
-                      backgroundColor: Colors.lightBlueAccent,
+                      backgroundColor: Colors.lightBlueAccent.shade100,
                       actions: [
+                        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: () => context.push(notificationPath),
+                                icon: Icon(
+                                  Icons.notifications,
+                                )),
+                            Positioned(
+                              left: 27,
+                              bottom: 27,
+                              child: Visibility(
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  radius: 5,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                         IconButton(
                             onPressed: () => _showTextInputDialog(context),
-                            icon: Icon(Icons.logout))
+                            icon: Icon(Icons.logout)),
                       ],
+                      bottom: TabBar(
+                        controller: _tabController,
+                        tabs: [
+                          Tab(
+                            child: Text("Global Groups"),
+                          ),
+                          Tab(child: Text("Your Groups"))
+                        ],
+                      ),
                     ),
                     floatingActionButton: FloatingActionButton(
                         child: Icon(Icons.add),
@@ -91,36 +127,51 @@ class _HomeState extends State<Home> {
                           // var result = await _showTextInputDialog(context);
                           // print(result.toString());
                         }),
-                    body: Container(
-                      height: MediaQuery.of(context).size.height,
-                      decoration: UIHelper.customContainerDecoration(),
-                      child: BlocBuilder<HomeBloc, HomeState>(
-                        bloc: _homeBloc,
-                        buildWhen: (previous, current) =>
-                            current is HomePostState,
-                        builder: (context, state) {
-                          print(state.runtimeType.toString());
-                          if (state is HomeUpdatePostState) {
-                            _myPosts.clear();
-                            _myPosts.addAll(state.groups);
-                          }
-                          return ListView.separated(
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(
-                              height: 10,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: _myPosts.length,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                  onTap: () =>
-                                      _homeBloc.add(HomePostTappedEvent()),
-                                  child: UIHelper.customPostBox(
-                                      _myPosts[index], context));
+                    body: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height,
+                          decoration: UIHelper.customContainerDecoration(),
+                          child: BlocBuilder<HomeBloc, HomeState>(
+                            bloc: _homeBloc,
+                            buildWhen: (previous, current) =>
+                                current is HomePostState,
+                            builder: (context, state) {
+                              print(state.runtimeType.toString());
+                              if (state is HomeUpdatePostState) {
+                                _myPosts.clear();
+                                _myPosts.addAll(state.groups);
+                              }
+                              return ListView.separated(
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(
+                                  height: 10,
+                                ),
+                                shrinkWrap: true,
+                                itemCount: _myPosts.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                      onTap: () =>
+                                          _homeBloc.add(HomePostTappedEvent(groupId: _myPosts[index].groupId)),
+                                      child: UIHelper.customPostBox(
+                                          _myPosts[index], context));
+                                },
+                              );
                             },
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                        Scaffold(
+                          body: Container(
+                            width: double.maxFinite,
+                            height: double.maxFinite,
+                            child: Center(
+                              child: LoadingAnimationWidget.dotsTriangle(
+                                  color: Colors.blue, size: 200),
+                            ),
+                          ),
+                        )
+                      ],
                     ));
               }
             default:

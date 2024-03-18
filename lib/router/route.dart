@@ -1,9 +1,11 @@
 import 'package:go_router/go_router.dart';
 import 'package:my_app/features/chats/ui/chats.dart';
+import 'package:my_app/features/dashboard/ui/dashboard.dart';
 import 'package:my_app/features/group/model/user_model.dart';
 import 'package:my_app/features/group/ui/user.dart';
 import 'package:my_app/features/home/ui/home.dart';
 import 'package:my_app/features/login/ui/login.dart';
+import 'package:my_app/features/notifications/ui/notification.dart';
 import 'package:my_app/features/signup/ui/signup.dart';
 import 'package:my_app/shared/global.dart';
 import 'package:my_app/shared/loading.dart';
@@ -49,6 +51,18 @@ class MyAppRouter {
       builder: (context, state) {
         return const User();
       },
-    )
+    ),
+    GoRoute(
+      name: "Dashboard",
+      path: dashBoardPath,
+      builder: (context, state) {
+        String groupId = state.extra as String;
+        return DashBoard(groupId: groupId);
+      },
+    ),
+    GoRoute(
+        name: "Notification",
+        path: notificationPath,
+        builder: (context, state) => const Notifications())
   ]);
 }

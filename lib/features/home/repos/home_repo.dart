@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:my_app/features/home/models/home_data_ui_model.dart';
+import 'package:my_app/features/home/models/home_model.dart';
 import 'package:my_app/shared/global.dart';
 
 class GroupsRepos {
